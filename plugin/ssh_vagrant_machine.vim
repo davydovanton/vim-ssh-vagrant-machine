@@ -34,13 +34,6 @@ function! s:sshVagrantMachineRun(command)
 endfunction
 command -nargs=1 SSHVagrantMachineRun :call <SID>sshVagrantMachineRun(<f-args>)
 
-function! s:sshVagrantMachineRunLsAll()
-  call <SID>sshVagrantMachineRunInitialize()
-
-  ruby SSHVagrantMachine.new($hostname, $username, $password, $output_type).run_ls_all
-endfunction
-command SSHVagrantMachineRunLsAll :call <SID>sshVagrantMachineRunLsAll()
-
 function! s:sshVagrantMachineRunRoutes()
   call <SID>sshVagrantMachineRunInitialize()
 
@@ -85,10 +78,6 @@ class SSHVagrantMachine
     session.close
   rescue
     puts 'Error SSH connections!'
-  end
-
-  def run_ls_all
-    run_command 'ls -Al'
   end
 
   def run_rspec
