@@ -23,6 +23,13 @@ ruby <<EOF
 EOF
 endfunction
 
+function! s:sshVagrantMachineRun(command)
+  call <SID>sshVagrantMachineRunInitialize()
+
+  ruby SSHVagrantMachine.new($hostname, $username, $password, $output_type).run_command VIM::evaluate "a:command" 
+endfunction
+command -nargs=1 SSHVagrantMachineRun :call <SID>sshVagrantMachineRun(<f-args>)
+
 function! s:sshVagrantMachineRunLsAll()
   call <SID>sshVagrantMachineRunInitialize()
 
