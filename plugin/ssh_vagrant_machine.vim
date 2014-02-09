@@ -28,11 +28,24 @@ function! s:sshVagrantMachineRunLsAll()
 
   ruby SSHVagrantMachine.new($hostname, $username, $password, $output_type).run_ls_all
 endfunction
- 
 command SSHVagrantMachineRunLsAll :call <SID>sshVagrantMachineRunLsAll()
 
+function! s:sshVagrantMachineRunRoutes()
+  call <SID>sshVagrantMachineRunInitialize()
+
+  ruby SSHVagrantMachine.new($hostname, $username, $password, $output_type).run_routes
+endfunction
+command SSHVagrantMachineRunRoutes :call <SID>sshVagrantMachineRunRoutes()
+
+function! s:sshVagrantMachineRunRspec()
+  call <SID>sshVagrantMachineRunInitialize()
+
+  ruby SSHVagrantMachine.new($hostname, $username, $password, $output_type).run_rspec
+endfunction
+command SSHVagrantMachineRunRspec :call <SID>sshVagrantMachineRunRspec()
+
 ruby << EOF
-require 'net/ssh'
+require 'net/ssh/session'
 
 class SSHVagrantMachine
   def initialize(hostname, username, password, output_type)
@@ -43,25 +56,36 @@ class SSHVagrantMachine
   end
 
   def run_command(command)
-    ssh = Net::SSH.start(@hostname, @username, password: @password)
-    @output = ssh.exec!("cd /vagrant/ && #{command}")
+    session = Net::SSH::Session.new(@hostname, @username, @password)
+    session.open
+    session.run('cd /vagrant')
     VIM::command 'tabedit' if @output_type == 'new_tab'
-    @output.each_line do |line| 
-      line = line.gsub(/\n/, "")
-      case @output_type
-      when 'new_tab'
-        VIM::Buffer.current.append(VIM::Buffer.current.count, line)
-      when 'info'
-        puts line
+    session.run(command) do |part| 
+      part.each_line do |line|
+        line = line.gsub(/[\n\r]/, "")
+        case @output_type
+        when 'new_tab'
+          VIM::Buffer.current.append(VIM::Buffer.current.count, line)
+        when 'info'
+          puts line
+        end
       end
     end
-    ssh.close
+    session.close
   rescue
     puts 'Error SSH connections!'
   end
 
   def run_ls_all
     run_command 'ls -Al'
+  end
+
+  def run_rspec
+    run_command 'rspec'
+  end
+
+  def run_routes
+    run_command 'rake routes'
   end
 end
 EOF
