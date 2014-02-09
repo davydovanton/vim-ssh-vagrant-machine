@@ -1,3 +1,7 @@
+" ssh-vagrant-machine.vim - Run commands in vagrant machine
+" Author:       Anton Davydov <http://fikys.github.io/>
+" Version:      0.1
+
 if !exists('g:ssh_vagrant_machine_uotput_type')
   let g:ssh_vagrant_machine_uotput_type = 'new_tab'
 endif
