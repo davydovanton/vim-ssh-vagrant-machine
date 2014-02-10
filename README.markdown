@@ -20,6 +20,11 @@ ssh-vagrant-machine.vim
 
 Так же, пока задаются в ручную значения username, hostname, password для ssh соединения( переменные `ssh_vagrant_machine_hostname`, `ssh_vagrant_machine_username`, `ssh_vagrant_machine_password` соответственно).
 
+Для работы плагина требуется гем `net-ssh-session`
+  
+     `gem install net-ssh-session`
+
+
 Installation
 ------------
 
