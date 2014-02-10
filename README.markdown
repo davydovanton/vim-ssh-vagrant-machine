@@ -9,6 +9,10 @@ ssh-vagrant-machine.vim
 
 Где `<params>` может принимать 2 значения: `info` - для info области и `new_tab` - для создания нового таба с новым файлом в который будет записан вывод вызываемой вами команды.
 
+Так же Следует указать vagrant машину:
+
+    `let g:ssh_vagrant_machine_environment = '<machine_name>'`
+
 Пока реализованны команды:
 
 `SSHVagrantMachineRun("<command>")` - выполняет указанную комманду.
@@ -18,9 +22,9 @@ ssh-vagrant-machine.vim
 `SSHVagrantMachineRunRoutes` - отображает все роуты вашего rails приложения.
 
 
-Так же, пока задаются в ручную значения username, hostname, password для ssh соединения( переменные `ssh_vagrant_machine_hostname`, `ssh_vagrant_machine_username`, `ssh_vagrant_machine_password` соответственно).
+Так же, пока задаются в ручную значения username и password для ssh соединения( переменные `ssh_vagrant_machine_username` и `ssh_vagrant_machine_password` соответственно).
 
-Для работы плагина требуется гем `net-ssh-session`
+Для работы плагина обязательно требуется гем `net-ssh-session`
   
      `gem install net-ssh-session`
 

@@ -61,10 +61,13 @@ class SSHVagrantMachine
 
   def run_command(command)
     @hostname    = get_hostname
+
     session = Net::SSH::Session.new(@hostname, @username, @password)
     session.open
     session.run('cd /vagrant')
+
     VIM::command 'tabedit' if @output_type == 'new_tab'
+
     session.run(command) do |part| 
       part.each_line do |line|
         line = line.gsub(/[\n\r]/, "")
@@ -76,6 +79,7 @@ class SSHVagrantMachine
         end
       end
     end
+
     session.close
   rescue
     puts 'Error SSH connections!'
@@ -93,9 +97,11 @@ class SSHVagrantMachine
     def get_hostname
       VIM::command 'let g:ssh_vagrant_machine_user_path = getcwd()'
       @project_path = VIM::evaluate "g:ssh_vagrant_machine_user_path"
+
       @file = File.open("#{@project_path}/Vagrantfile", "r")
       @data = @file.read
       @file.close
+
       @data = @data[/#{@environment}.vm.network.*/][/\".*\"/].gsub(/\"/, "")
     end
 end
