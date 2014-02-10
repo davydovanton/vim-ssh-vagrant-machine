@@ -6,10 +6,6 @@ if !exists('g:ssh_vagrant_machine_uotput_type')
   let g:ssh_vagrant_machine_uotput_type = 'new_tab'
 endif
 
-if !exists('g:ssh_vagrant_machine_hostname')
-  let g:ssh_vagrant_machine_hostname = '10.0.0.200'
-endif
-
 if !exists('g:ssh_vagrant_machine_username')
   let g:ssh_vagrant_machine_username = 'deployer'
 endif
@@ -18,12 +14,16 @@ if !exists('g:ssh_vagrant_machine_password')
   let g:ssh_vagrant_machine_password = 'password'
 endif
 
+if !exists('g:ssh_vagrant_machine_environment')
+  let g:ssh_vagrant_machine_environment = 'dev'
+endif
+
 function! s:sshVagrantMachineRunInitialize()
 ruby <<EOF
-  $hostname    = VIM::evaluate "g:ssh_vagrant_machine_hostname"
   $username    = VIM::evaluate "g:ssh_vagrant_machine_username"
   $password    = VIM::evaluate "g:ssh_vagrant_machine_password"
   $output_type = VIM::evaluate "g:ssh_vagrant_machine_uotput_type"
+  $environment = VIM::evaluate "g:ssh_vagrant_machine_environment"
 EOF
 endfunction
 
@@ -53,13 +53,14 @@ require 'net/ssh/session'
 
 class SSHVagrantMachine
   def initialize(hostname, username, password, output_type)
-    @hostname    = hostname
     @username    = username
     @password    = password
     @output_type = output_type
+    @environment = $environment
   end
 
   def run_command(command)
+    @hostname    = get_hostname
     session = Net::SSH::Session.new(@hostname, @username, @password)
     session.open
     session.run('cd /vagrant')
@@ -87,5 +88,15 @@ class SSHVagrantMachine
   def run_routes
     run_command 'rake routes'
   end
+
+  private
+    def get_hostname
+      VIM::command 'let g:ssh_vagrant_machine_user_path = getcwd()'
+      @project_path = VIM::evaluate "g:ssh_vagrant_machine_user_path"
+      @file = File.open("#{@project_path}/Vagrantfile", "r")
+      @data = @file.read
+      @file.close
+      @data = @data[/#{@environment}.vm.network.*/][/\".*\"/].gsub(/\"/, "")
+    end
 end
 EOF
