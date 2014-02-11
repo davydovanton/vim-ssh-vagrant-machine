@@ -60,7 +60,7 @@ class SSHVagrantMachine
   end
 
   def run_command(command)
-    @hostname    = get_hostname
+    @hostname = hostname
 
     session = Net::SSH::Session.new(@hostname, @username, @password)
     session.open
@@ -94,15 +94,25 @@ class SSHVagrantMachine
   end
 
   private
-    def get_hostname
+    def hostname
+      data
+
+      @data = @data[/#{@environment}.vm.network.*/][/\".*\"/].gsub(/\"/, "")
+    end
+
+    def vagrant_path
+      data
+
+      @data = @data[/#{@environment}.vm.network.*/][/\".*\"/].gsub(/\"/, "")
+    end
+
+    def data
       VIM::command 'let g:ssh_vagrant_machine_user_path = getcwd()'
       @project_path = VIM::evaluate "g:ssh_vagrant_machine_user_path"
 
       @file = File.open("#{@project_path}/Vagrantfile", "r")
       @data = @file.read
       @file.close
-
-      @data = @data[/#{@environment}.vm.network.*/][/\".*\"/].gsub(/\"/, "")
     end
 end
 EOF
