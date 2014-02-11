@@ -30,21 +30,21 @@ endfunction
 function! s:sshVagrantMachineRun(command)
   call <SID>sshVagrantMachineRunInitialize()
 
-  ruby SSHVagrantMachine.new($hostname, $username, $password, $output_type).run_command VIM::evaluate "a:command" 
+  ruby SSHVagrantMachine.new($username, $password, $output_type).run_command VIM::evaluate "a:command" 
 endfunction
 command -nargs=1 SSHVagrantMachineRun :call <SID>sshVagrantMachineRun(<f-args>)
 
 function! s:sshVagrantMachineRunRoutes()
   call <SID>sshVagrantMachineRunInitialize()
 
-  ruby SSHVagrantMachine.new($hostname, $username, $password, $output_type).run_routes
+  ruby SSHVagrantMachine.new($username, $password, $output_type).run_routes
 endfunction
 command SSHVagrantMachineRunRoutes :call <SID>sshVagrantMachineRunRoutes()
 
 function! s:sshVagrantMachineRunRspec()
   call <SID>sshVagrantMachineRunInitialize()
 
-  ruby SSHVagrantMachine.new($hostname, $username, $password, $output_type).run_rspec
+  ruby SSHVagrantMachine.new($username, $password, $output_type).run_rspec
 endfunction
 command SSHVagrantMachineRunRspec :call <SID>sshVagrantMachineRunRspec()
 
@@ -52,7 +52,7 @@ ruby << EOF
 require 'net/ssh/session'
 
 class SSHVagrantMachine
-  def initialize(hostname, username, password, output_type)
+  def initialize(username, password, output_type)
     @username    = username
     @password    = password
     @output_type = output_type
@@ -100,11 +100,13 @@ class SSHVagrantMachine
       @data = @data[/#{@environment}.vm.network.*/][/\".*\"/].gsub(/\"/, "")
     end
 
-    def vagrant_path
-      data
+    # TODO: 
 
-      @data = @data[/#{@environment}.vm.network.*/][/\".*\"/].gsub(/\"/, "")
-    end
+    # def vagrant_path
+    #   data
+
+    #   @data = @data[/#{@environment}.vm.network.*/][/\".*\"/].gsub(/\"/, "")
+    # end
 
     def data
       VIM::command 'let g:ssh_vagrant_machine_user_path = getcwd()'
